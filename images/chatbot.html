@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceptance Criteria Analysis System - Saint-Gobain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8f0ff 0%, #f5f8fc 50%, #e8f0ff 100%);
+            color: #003a8f;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 85, 184, 0.04) 1.5px, transparent 1.5px),
+                linear-gradient(90deg, rgba(0, 85, 184, 0.04) 1.5px, transparent 1.5px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            animation: gridFloat 25s linear infinite;
+        }
+
+        @keyframes gridFloat {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .bg-gradient {
+            position: fixed; inset: 0;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(0, 85, 184, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 85% 75%, rgba(0, 58, 143, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: relative; z-index: 10;
+            border-bottom: 1px solid rgba(0, 85, 184, 0.12);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0, 85, 184, 0.08);
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            max-width: 100%; margin: 0 auto;
+            padding: 0.85rem 3rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo-section { display: flex; align-items: center; gap: 1rem; }
+
+        .logo-icon {
+            width: 56px; height: 56px; background: transparent;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        .logo-icon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,85,184,0.15)); }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.7rem; font-weight: 800; color: #0055b8; line-height: 1.2; }
+        .subtitle { font-size: 0.75rem; color: #6b84b8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.2rem; font-weight: 600; }
+
+        /* ===== LAYOUT ===== */
+        .app-body { 
+            position: relative; z-index: 1; flex: 1; display: flex; 
+            overflow: hidden;
+            /* Key fix: stretch to fill remaining height */
+            min-height: 0;
+        }
+
+        /* ===== SELECTION PANEL ===== */
+        .selection-panel {
+            flex: 1; display: flex; flex-direction: column;
+            /* Vertically center the inner content */
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+        }
+        .selection-panel.hidden { display: none; }
+
+        /* Inner wrapper that holds all the step content, max-width for readability */
+        #selectionContent {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ===== SELECTION SUMMARY BAR ===== */
+        .selection-summary {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem;
+            padding: 0.85rem 1.4rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            border: 1.5px solid rgba(0, 85, 184, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 85, 184, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .summary-label {
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #6b84b8;
+            display: flex; align-items: center; gap: 0.4rem; margin-right: 0.5rem;
+        }
+        .summary-label svg { width: 13px; height: 13px; }
+
+        .chip {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.55rem 1.2rem; border-radius: 100px;
+            font-size: 1rem; font-weight: 700;
+            animation: chipPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+
+        @keyframes chipPop {
+            from { opacity: 0; transform: scale(0.6); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .chip-category { background: #dce8ff; color: #000; box-shadow: 0 2px 8px rgba(0,58,143,0.15); }
+        .chip-defect   { background: #d0e4ff; color: #000; box-shadow: 0 2px 8px rgba(0,85,184,0.15); }
+        .chip-vehicle  { background: #cdf0ff; color: #000; box-shadow: 0 2px 8px rgba(0,168,255,0.15); }
+        .chip-zone     { background: #ccf5dc; color: #000; box-shadow: 0 2px 8px rgba(0,200,83,0.15); }
+        .chip-line     { background: #ead6ff; color: #000; box-shadow: 0 2px 8px rgba(124,58,237,0.15); }
+
+        .chip-key { opacity: 0.55; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #000; }
+        .chip-sep { opacity: 0.5; margin: 0 0.05rem; }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-bar {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.85rem 1.4rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 14px;
+            border: 1px solid rgba(0,85,184,0.08);
+            box-shadow: 0 3px 14px rgba(0,85,184,0.06);
+            flex-wrap: wrap;
+        }
+
+        .progress-step { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: #6b84b8; font-weight: 600; }
+        .progress-step.completed { color: #00c853; }
+        .progress-step.active { color: #0055b8; font-weight: 800; }
+
+        .progress-icon {
+            width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700;
+            background: #e8f0ff; color: #6b84b8;
+        }
+
+        .progress-step.completed .progress-icon { background: #00c853; color: white; }
+        .progress-step.active .progress-icon { background: #0055b8; color: white; animation: pulseIcon 2s ease-in-out infinite; }
+
+        @keyframes pulseIcon {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,85,184,0.4); }
+            50% { box-shadow: 0 0 0 7px rgba(0,85,184,0); }
+        }
+
+        .progress-arrow { color: #d0d9e8; margin: 0 0.05rem; }
+
+        /* ===== PROMPT & BUTTONS ===== */
+        .prompt-text { font-size: 1.4rem; font-weight: 700; color: #003a8f; line-height: 1.5; }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            animation: fadeInUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .defect-button {
+            background: linear-gradient(135deg, #0055b8 0%, #003a8f 100%);
+            border: none; border-radius: 14px;
+            padding: 1.3rem 1.5rem; color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 85, 184, 0.25);
+            position: relative; overflow: hidden;
+        }
+
+        .defect-button::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.55s ease;
+        }
+
+        .defect-button:hover::before { left: 100%; }
+        .defect-button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 30px rgba(0, 85, 184, 0.35); }
+        .defect-button:active { transform: translateY(-1px) scale(0.98); }
+
+        .back-button {
+            background: rgba(255,255,255,0.95); border: 2px solid #0055b8; color: #0055b8;
+            padding: 0.75rem 1.5rem; border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 85, 184, 0.1); width: fit-content;
+        }
+
+        .back-button:hover { background: #0055b8; color: #ffffff; transform: translateX(-3px); }
+        .back-button svg { width: 14px; height: 14px; }
+
+        /* ===== OUTPUT PANEL ===== */
+        .output-panel {
+            position: relative; flex: 1;
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: expandIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .output-panel.hidden { display: none; }
+
+        @keyframes expandIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .output-scroll {
+            flex: 1; overflow-y: auto; padding: 3rem 4rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .output-scroll::-webkit-scrollbar { width: 8px; }
+        .output-scroll::-webkit-scrollbar-track { background: rgba(234,241,255,0.4); border-radius: 8px; }
+        .output-scroll::-webkit-scrollbar-thumb { background: rgba(0,85,184,0.3); border-radius: 8px; }
+
+        /* ===== RESULT CARD ===== */
+        .result-container { width: 100%; display: flex; align-items: center; justify-content: center; min-height: 100%; }
+
+        .result-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+            border: 2px solid rgba(0, 85, 184, 0.2);
+            border-radius: 24px; padding: 4rem 4rem;
+            width: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: calc(100vh - 100px);
+            box-shadow: 
+                0 0 0 6px rgba(0, 85, 184, 0.06),
+                0 20px 60px rgba(0, 85, 184, 0.15),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+            position: relative; overflow: hidden;
+            animation: fadeSlideUp 0.6s ease 0.1s forwards; opacity: 0;
+        }
+
+        .result-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(90deg, #0055b8, #00a8ff, #0055b8);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESULT CHIPS ===== */
+        .result-chips {
+            display: flex; flex-wrap: wrap; gap: 0.6rem;
+            justify-content: center; margin-bottom: 2.5rem;
+            animation: fadeSlideUp 0.5s ease 0.2s forwards; opacity: 0;
+        }
+
+        /* ===== RESULT CONTENT ===== */
+        .result-content {
+            width: 100%; text-align: center;
+            animation: textReveal 0.8s ease 0.35s forwards; opacity: 0;
+        }
+
+        @keyframes textReveal {
+            0%   { opacity: 0; transform: translateY(12px) scale(0.83); }
+            60%  { opacity: 0.85; transform: translateY(-2px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .result-content-inner {
+            font-size: 2.8rem; line-height: 1.7;
+            color: #001f5c; font-weight: 700; text-align: center;
+        }
+
+        .result-content-inner strong, .result-content-inner b { color: #0055b8; font-weight: 800; }
+        .result-content-inner h1 { font-family: 'Syne', sans-serif; font-size: 3rem; color: #0055b8; margin: 1.2rem 0 0.6rem; }
+        .result-content-inner h2 { font-family: 'Syne', sans-serif; font-size: 2.4rem; color: #0055b8; margin: 1rem 0 0.5rem; }
+        .result-content-inner h3 { font-size: 2rem; color: #003a8f; font-weight: 700; margin: 0.8rem 0 0.4rem; }
+
+        .result-content-inner table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 1.4rem; text-align: left; }
+        .result-content-inner th { background: linear-gradient(135deg, #0055b8, #003a8f); color: white; padding: 0.9rem 1.25rem; font-weight: 700; font-size: 1.2rem; }
+        .result-content-inner td { padding: 0.9rem 1.25rem; border-bottom: 1px solid rgba(0,85,184,0.1); color: #002060; font-weight: 500; }
+        .result-content-inner tr:nth-child(even) td { background: rgba(0,85,184,0.04); }
+        .result-content-inner tr:hover td { background: rgba(0,85,184,0.08); }
+
+        /* ===== NEW ANALYSIS BTN ===== */
+        .new-analysis-btn {
+            margin-top: 3rem;
+            background: rgba(255,255,255,0.9); border: 2px solid rgba(0,85,184,0.3);
+            border-radius: 14px; padding: 1rem 2rem; color: #0055b8;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            box-shadow: 0 2px 12px rgba(0,85,184,0.1);
+        }
+
+        .new-analysis-btn:hover { background: #0055b8; color: white; box-shadow: 0 6px 20px rgba(0,85,184,0.3); transform: translateY(-2px); }
+
+        /* ===== LOADING ===== */
+        .loading-dots { display: flex; gap: 0.7rem; padding: 1.5rem; justify-content: center; }
+
+        .loading-dots span {
+            width: 16px; height: 16px; background: #0055b8; border-radius: 50%;
+            animation: loadingBounce 1.4s ease-in-out infinite;
+        }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loadingBounce {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+            40% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .live-dot { width: 8px; height: 8px; background: #00c853; border-radius: 50%; animation: pulse 2s infinite; display: inline-block; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,83,0.7); }
+            50% { opacity: 0.9; box-shadow: 0 0 0 6px rgba(0,200,83,0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-content { padding: 0.75rem 1.5rem; }
+            .logo-icon { width: 44px; height: 44px; }
+            .title { font-size: 1.3rem; }
+            .selection-panel { padding: 1.25rem; }
+            .output-scroll { padding: 1.5rem; }
+            .button-grid { grid-template-columns: 1fr; }
+            .result-card { padding: 2rem 1.5rem; min-height: auto; }
+            .result-content-inner { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-gradient"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <img src="./logo.png" alt="Saint-Gobain Logo">
+                </div>
+                <div>
+                    <h1 class="title">Acceptance Criteria</h1>
+                    <p class="subtitle">Quality Analysis System</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-body">
+        <div class="selection-panel" id="selectionPanel">
+            <div id="selectionContent"></div>
+        </div>
+        <div class="output-panel hidden" id="outputPanel">
+            <div class="output-scroll" id="outputScroll">
+                <div class="result-container" id="resultContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'http://localhost:5678/webhook/545e799a-5200-4eab-ab5c-0786a35156e1';
+
+        const defectCategories = {
+            'Float Glass': { options: ['Bubble', 'Stone, Tin (Clear)', 'Stone, Tin (Colour)'] },
+            'Scratch Defect': { options: ['Hairline', 'Medium', 'Heavy', 'Abrasion', 'Scratch Rework'] },
+            'Surface Defect': { options: ['Foreign Body (Clear)', 'Foreign Body (Colour)', 'Dirty on Glass', 'Finger prints', 'Glass Particles', 'Surface Chip'] },
+            'Tooling Mark': { options: ['Skeleton (Only Hot Marks)', 'Scratch', 'Bulge'] }
+        };
+
+        const vehicleCategories = ['Passenger Car', 'Three Wheeler', 'Commercial', 'Export OEM', 'Autover'];
+
+        const inspectionLines = {
+            'Float Glass': { default: ['PPL', 'FI'] },
+            'Surface Defect': {
+                'Foreign Body (Clear)': ['Assembly', 'FI'],
+                'Foreign Body (Colour)': ['Assembly', 'FI'],
+                default: ['All']
+            },
+            'Tooling Mark': { default: ['Furnace'] },
+            'Scratch Defect': { default: ['All'] }
+        };
+
+        let selectionState = { category: null, defectType: null, vehicleCategory: null, zone: null, inspectionLine: null };
+        let analysisResult = null;
+
+        const selectionPanel = document.getElementById('selectionPanel');
+        const selectionContent = document.getElementById('selectionContent');
+        const outputPanel = document.getElementById('outputPanel');
+        const resultContainer = document.getElementById('resultContainer');
+
+        renderSelectionStep('categories');
+
+        /* ===== SUMMARY CHIPS ===== */
+        function buildSelectionSummary() {
+            const items = [
+                { key: 'Category', value: selectionState.category,       cls: 'chip-category' },
+                { key: 'Defect',   value: selectionState.defectType,      cls: 'chip-defect'   },
+                { key: 'Vehicle',  value: selectionState.vehicleCategory,  cls: 'chip-vehicle'  },
+                { key: 'Zone',     value: selectionState.zone,             cls: 'chip-zone'     },
+            ].filter(i => i.value);
+
+            if (!items.length) return null;
+
+            const bar = document.createElement('div');
+            bar.className = 'selection-summary';
+
+            const lbl = document.createElement('span');
+            lbl.className = 'summary-label';
+            lbl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Selected`;
+            bar.appendChild(lbl);
+
+            items.forEach(item => {
+                const chip = document.createElement('span');
+                chip.className = `chip ${item.cls}`;
+                chip.innerHTML = `<span class="chip-key">${item.key}</span><span class="chip-sep"> · </span>${item.value}`;
+                bar.appendChild(chip);
+            });
+
+            return bar;
+        }
+
+        function buildResultChipsHTML() {
+            return [
+                { key: 'Category', value: selectionState.category,       cls: 'chip-category' },
+                { key: 'Defect',   value: selectionState.defectType,      cls: 'chip-defect'   },
+                { key: 'Vehicle',  value: selectionState.vehicleCategory,  cls: 'chip-vehicle'  },
+                { key: 'Zone',     value: selectionState.zone,             cls: 'chip-zone'     },
+                { key: 'Line',     value: selectionState.inspectionLine,   cls: 'chip-line'     },
+            ].filter(i => i.value)
+             .map(i => `<span class="chip ${i.cls}"><span class="chip-key">${i.key}</span><span class="chip-sep"> · </span>${i.value}</span>`)
+             .join('');
+        }
+
+        /* ===== RENDER STEP ===== */
+        function renderSelectionStep(step) {
+            selectionContent.innerHTML = '';
+
+            const backMap = {
+                defectOptions:     ['Back to Categories',        () => { selectionState = {...selectionState, category: null, defectType: null, vehicleCategory: null, zone: null, inspectionLine: null}; renderSelectionStep('categories'); }],
+                vehicleCategories: ['Back to Defect Types',      () => { selectionState = {...selectionState, defectType: null, vehicleCategory: null, zone: null, inspectionLine: null}; renderSelectionStep('defectOptions'); }],
+                zones:             ['Back to Vehicle Categories', () => { selectionState = {...selectionState, vehicleCategory: null, zone: null, inspectionLine: null}; renderSelectionStep('vehicleCategories'); }],
+                inspectionLines:   ['Back to Zones',              () => { selectionState = {...selectionState, zone: null, inspectionLine: null}; renderSelectionStep('zones'); }],
+            };
+
+            if (backMap[step]) {
+                const [label, fn] = backMap[step];
+                const btn = document.createElement('button');
+                btn.className = 'back-button';
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>${label}`;
+                btn.onclick = fn;
+                selectionContent.appendChild(btn);
+            }
+
+            const summary = buildSelectionSummary();
+            if (summary) selectionContent.appendChild(summary);
+
+            const progressEl = createProgressBar();
+            if (progressEl) selectionContent.appendChild(progressEl);
+
+            if (step === 'categories') {
+                renderPromptAndButtons('Select a defect category to begin your quality analysis:', Object.keys(defectCategories), handleCategoryClick);
+            } else if (step === 'defectOptions') {
+                renderPromptAndButtons(`Select a specific defect type for <strong>${selectionState.category}</strong>:`, defectCategories[selectionState.category].options, handleDefectOptionClick);
+            } else if (step === 'vehicleCategories') {
+                renderPromptAndButtons('Select the vehicle category:', vehicleCategories, handleVehicleCategoryClick);
+            } else if (step === 'zones') {
+                const availZones = selectionState.vehicleCategory === 'Autover'
+                    ? ['Zone A', 'Zone B', 'Zone C']
+                    : ['Zone A', 'Zone B', 'Zone D', 'Zone E'];
+                renderPromptAndButtons('Select the zone for analysis:', availZones, handleZoneClick);
+            } else if (step === 'inspectionLines') {
+                renderPromptAndButtons('Select the inspection line:', getInspectionLinesForSelection(), handleInspectionLineClick);
+            }
+        }
+
+        function renderPromptAndButtons(promptHtml, options, handler) {
+            const p = document.createElement('p');
+            p.className = 'prompt-text';
+            p.innerHTML = promptHtml;
+            selectionContent.appendChild(p);
+
+            const grid = document.createElement('div');
+            grid.className = 'button-grid';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'defect-button';
+                btn.textContent = opt;
+                btn.onclick = () => handler(opt);
+                grid.appendChild(btn);
+            });
+            selectionContent.appendChild(grid);
+        }
+
+        function handleCategoryClick(cat)      { selectionState.category = cat;       renderSelectionStep('defectOptions'); }
+        function handleDefectOptionClick(opt)   { selectionState.defectType = opt;     renderSelectionStep('vehicleCategories'); }
+        function handleVehicleCategoryClick(v)  { selectionState.vehicleCategory = v;  renderSelectionStep('zones'); }
+        function handleZoneClick(z)             { selectionState.zone = z;             renderSelectionStep('inspectionLines'); }
+
+        async function handleInspectionLineClick(line) {
+            selectionState.inspectionLine = line;
+            await runAnalysis();
+        }
+
+        function getInspectionLinesForSelection() {
+            const cat = selectionState.category;
+            const def = selectionState.defectType;
+            if (!cat || !inspectionLines[cat]) return ['PPL', 'FI'];
+            const cfg = inspectionLines[cat];
+            return cfg[def] || cfg.default || ['PPL', 'FI'];
+        }
+
+        /* ===== ANALYSIS ===== */
+        async function runAnalysis() {
+            selectionPanel.classList.add('hidden');
+            outputPanel.classList.remove('hidden');
+            resultContainer.innerHTML = `
+                <div class="result-card" style="opacity:1;">
+                    <div style="font-size:1.1rem;color:#6b84b8;font-weight:600;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.6rem;">
+                        <span class="live-dot"></span> Analyzing...
+                    </div>
+                    <div class="loading-dots"><span></span><span></span><span></span></div>
+                </div>`;
+
+            const fullQuery = `${selectionState.category} - ${selectionState.defectType} | Vehicle: ${selectionState.vehicleCategory} | ${selectionState.zone} | Inspection Line: ${selectionState.inspectionLine}`;
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: fullQuery,
+                        defectCategory: selectionState.category,
+                        defectType: selectionState.defectType,
+                        vehicleCategory: selectionState.vehicleCategory,
+                        zone: selectionState.zone,
+                        inspectionLine: selectionState.inspectionLine,
+                    })
+                });
+
+                const data = await response.json();
+                let reply = 'Analysis received.';
+                if (Array.isArray(data) && data[0]?.output)            reply = data[0].output;
+                else if (data.body && Array.isArray(data.body) && data.body[0]?.output) reply = data.body[0].output;
+                else if (Array.isArray(data) && data[0]?.json?.output) reply = data[0].json.output;
+                else if (data.output)   reply = data.output;
+                else if (data.response) reply = data.response;
+                else if (data.message)  reply = data.message;
+
+                analysisResult = reply;
+                showResult(reply);
+
+            } catch (e) {
+                console.error(e);
+                resultContainer.innerHTML = `
+                    <div class="result-card" style="opacity:1;border-color:#e53935;">
+                        <div class="result-content" style="opacity:1;">
+                            <div style="color:#e53935;font-size:1.5rem;font-weight:700;text-align:center;">
+                                Unable to connect to the analysis server.<br>Please try again.
+                            </div>
+                        </div>
+                        <button class="new-analysis-btn" onclick="startNewAnalysis()">&#8617; Try Again</button>
+                    </div>`;
+            }
+        }
+
+        function showResult(text) {
+            resultContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="result-chips">${buildResultChipsHTML()}</div>
+                    <div class="result-content">
+                        <div class="result-content-inner" id="resultInner"></div>
+                    </div>
+                    <button class="new-analysis-btn" onclick="startNewAnalysis()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                            <path d="M21 3v5h-5"/>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                            <path d="M8 16H3v5"/>
+                        </svg>
+                        New Analysis
+                    </button>
+                </div>`;
+            document.getElementById('resultInner').innerHTML = formatContent(text);
+            document.getElementById('outputScroll').scrollTop = 0;
+        }
+
+        function formatContent(text) {
+            return text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/### (.*)/g, '<h3>$1</h3>')
+                .replace(/## (.*)/g, '<h2>$1</h2>')
+                .replace(/# (.*)/g, '<h1>$1</h1>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function startNewAnalysis() {
+            selectionState = { category: null, defectType: null, vehicleCategory: null, zone: null, inspectionLine: null };
+            analysisResult = null;
+            resultContainer.innerHTML = '';
+            outputPanel.classList.add('hidden');
+            selectionPanel.classList.remove('hidden');
+            renderSelectionStep('categories');
+        }
+
+        function createProgressBar() {
+            const steps = [
+                { name: 'Category' }, { name: 'Defect' }, { name: 'Vehicle' }, { name: 'Zone' }, { name: 'Inspection' }
+            ];
+
+            let currentStep = 0;
+            if (selectionState.category)       currentStep = 1;
+            if (selectionState.defectType)     currentStep = 2;
+            if (selectionState.vehicleCategory) currentStep = 3;
+            if (selectionState.zone)           currentStep = 4;
+            if (selectionState.inspectionLine) currentStep = 5;
+            if (currentStep === 0) return null;
+
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+
+            steps.forEach((step, i) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'progress-step' + (i < currentStep ? ' completed' : i === currentStep ? ' active' : '');
+
+                const icon = document.createElement('div');
+                icon.className = 'progress-icon';
+                icon.textContent = i < currentStep ? '✓' : i + 1;
+                stepDiv.appendChild(icon);
+
+                const lbl = document.createElement('span');
+                lbl.textContent = step.name;
+                stepDiv.appendChild(lbl);
+                bar.appendChild(stepDiv);
+
+                if (i < steps.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'progress-arrow';
+                    arrow.textContent = '→';
+                    bar.appendChild(arrow);
+                }
+            });
+
+            return bar;
+        }
+    </script>
+</body>
+</html>
