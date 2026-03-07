@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saint-Gobain Automotive Glass — Quality Gurukul</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sg-blue:      #003B8E;
+    --sg-mid:       #0057D2;
+    --sg-sky:       #0091D5;
+    --sg-light:     #40B4E5;
+    --sg-accent:    #00AEEF;
+    --sg-white:     #FFFFFF;
+    --sg-offwhite:  #F0F7FF;
+    --sg-steel:     #D6E6F8;
+    --sg-dark:      #001A40;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sg-dark);
+    color: var(--sg-white);
+    overflow-x: hidden;
+  }
+  h1,h2,h3 { font-family: 'DM Serif Display', serif; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--sg-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--sg-mid); border-radius: 3px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(0,27,64,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,145,213,0.25);
+    padding: 0 48px;
+    height: 88px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  nav img { height: 72px; object-fit: contain; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    padding-top: 88px;
+    position: relative;
+    background: linear-gradient(135deg, var(--sg-dark) 0%, #001f52 40%, #003380 80%, var(--sg-dark) 100%);
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(0,145,213,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 70%, rgba(0,59,142,0.3) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(0,145,213,0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,145,213,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1200px; width: 100%;
+    padding: 56px 48px 40px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,174,239,0.12);
+    border: 1px solid rgba(0,174,239,0.35);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--sg-accent);
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--sg-accent); display: inline-block; }
+
+  .hero-title {
+    font-size: clamp(52px, 8vw, 96px);
+    line-height: 1.0;
+    text-align: center;
+    margin-bottom: 24px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero-title .line1 { display: block; color: var(--sg-white); }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--sg-sky), var(--sg-accent), var(--sg-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-style: italic;
+  }
+
+  .hero-sub {
+    font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.55);
+    text-align: center; max-width: 560px; line-height: 1.7;
+    margin-bottom: 56px;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  /* ── IMAGE CAROUSEL ── */
+  .hero-carousel-wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 4px 24px rgba(0,87,210,0.15),
+      0 24px 80px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+    animation: fadeUp 0.8s 0.3s ease both;
+    aspect-ratio: 4/3;
+    background: #001033;
+  }
+
+  .carousel-slide {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+  .carousel-slide.active { opacity: 1; }
+  .carousel-slide img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* overlay tint */
+  .carousel-slide::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,20,60,0.12) 0%,
+      transparent 35%,
+      transparent 65%,
+      rgba(0,10,40,0.4) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* dot indicators */
+  .carousel-dots {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10;
+  }
+  .carousel-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .carousel-dot.active {
+    background: var(--sg-accent);
+    border-color: var(--sg-accent);
+    box-shadow: 0 0 8px rgba(0,174,239,0.7);
+    width: 24px; border-radius: 4px;
+  }
+
+  /* prev/next arrows */
+  .carousel-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,27,64,0.7); backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,174,239,0.35);
+    color: #fff; font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .carousel-arrow:hover { background: rgba(0,87,210,0.7); border-color: var(--sg-accent); }
+  .carousel-arrow.prev { left: 16px; }
+  .carousel-arrow.next { right: 16px; }
+
+  .carousel-badge {
+    position: absolute; bottom: 16px; right: 20px; z-index: 10;
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,10,40,0.75); backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,145,213,0.35); border-radius: 100px;
+    padding: 7px 16px; font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.85);
+  }
+  .carousel-badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sg-accent);
+    animation: pulse 2s ease infinite;
+  }
+
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    width: 100%;
+    display: flex; justify-content: center;
+    padding: 40px 48px 0;
+    gap: 0;
+    position: relative; z-index: 2;
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+  .stat-item {
+    flex: 1; max-width: 220px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px;
+    border-left: 1px solid rgba(0,145,213,0.15);
+  }
+  .stat-item:first-child { border-left: none; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px; font-style: italic;
+    background: linear-gradient(135deg, var(--sg-accent), var(--sg-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .stat-lbl { font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; }
+
+  /* ── PARTNERS ── */
+  .partners-section {
+    padding: 120px 0;
+    background: linear-gradient(180deg, var(--sg-dark) 0%, #001033 50%, var(--sg-dark) 100%);
+    position: relative; overflow: hidden;
+  }
+  .partners-section::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--sg-mid), var(--sg-accent), var(--sg-mid), transparent);
+  }
+
+  .section-eyebrow {
+    text-align: center;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--sg-accent); margin-bottom: 16px;
+  }
+  .section-title {
+    text-align: center;
+    font-size: clamp(32px, 5vw, 52px);
+    color: var(--sg-white);
+    margin-bottom: 12px;
+  }
+  .section-sub {
+    text-align: center;
+    font-size: 15px; color: rgba(255,255,255,0.45);
+    margin-bottom: 64px;
+  }
+
+  /* Carousel */
+  .carousel-outer {
+    position: relative;
+    padding: 0 72px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .carousel-btn {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(0,87,210,0.2); border: 1px solid rgba(0,145,213,0.4);
+    color: var(--sg-white); font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .carousel-btn:hover { background: rgba(0,87,210,0.5); border-color: var(--sg-accent); }
+  .carousel-btn.left { left: 0; }
+  .carousel-btn.right { right: 0; }
+  .carousel-track {
+    display: flex; gap: 24px; overflow-x: auto; scroll-behavior: smooth;
+    scrollbar-width: none; padding-bottom: 8px;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+
+  /* Company card */
+  .company-card {
+    flex-shrink: 0; width: 200px; height: 160px;
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px; overflow: hidden; cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    position: relative; border: 2px solid transparent;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .company-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 24px 48px rgba(0,0,0,0.4); }
+  .company-card.selected {
+    border-color: var(--sg-accent);
+    box-shadow: 0 0 0 4px rgba(0,174,239,0.25), 0 24px 48px rgba(0,0,0,0.4);
+    animation: cardGlow 2s ease infinite;
+  }
+  @keyframes cardGlow {
+    0%,100% { box-shadow: 0 0 0 4px rgba(0,174,239,0.25), 0 16px 40px rgba(0,0,0,0.4); }
+    50%      { box-shadow: 0 0 0 6px rgba(0,174,239,0.4), 0 24px 56px rgba(0,87,210,0.3); }
+  }
+  .company-card .color-bar { position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .company-card img { max-height: 52px; object-fit: contain; }
+  .company-card .brand-name { font-size: 13px; font-weight: 700; color: #1a2540; margin-top: 10px; }
+
+  /* ── GLASS SELECTOR ── */
+  .glass-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, #001033 0%, var(--sg-dark) 100%);
+  }
+  .glass-card {
+    flex-shrink: 0; width: 300px;
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(0,145,213,0.2);
+    background: linear-gradient(135deg, rgba(0,59,142,0.25), rgba(0,27,64,0.4));
+    cursor: pointer; transition: all 0.3s;
+  }
+  .glass-card:hover { transform: translateY(-6px); border-color: rgba(0,174,239,0.5); box-shadow: 0 24px 48px rgba(0,87,210,0.25); }
+  .glass-card.selected { border-color: var(--sg-accent); box-shadow: 0 0 0 3px rgba(0,174,239,0.2), 0 24px 48px rgba(0,87,210,0.3); }
+  .glass-card .img-wrap { height: 200px; overflow: hidden; background: rgba(0,27,64,0.5); display: flex; align-items: center; justify-content: center; }
+  .glass-card .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .glass-card:hover .img-wrap img { transform: scale(1.06); }
+  .glass-card .card-label {
+    padding: 20px; text-align: center;
+    font-size: 17px; font-weight: 700; color: var(--sg-white);
+    background: rgba(0,87,210,0.12); letter-spacing: 0.03em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #000d20;
+    border-top: 1px solid rgba(0,87,210,0.2);
+    padding: 48px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  footer img { height: 32px; object-fit: contain; filter: brightness(0.8); }
+  footer p { font-size: 13px; color: rgba(255,255,255,0.3); text-align: center; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.8); }
+  }
+  .fade-in { animation: fadeUp 0.6s ease both; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const heroSlides = [
+  {
+    src: './images/3D automotive windshield with labeled zones.png',
+    caption: '3D Automotive Windshield — Labeled Zones'
+  },
+  {
+    src: './images/3D detailed automotive windshield rendering.png',
+    caption: '3D Detailed Automotive Windshield Rendering'
+  },
+  {
+    src: './images/3D view of autover windshield zones.png',
+    caption: '3D View — AUTOVER Windshield Zones'
+  },
+];
+
+const companies = [
+  {name:'Suzuki',         color:'#E31837', logo:'./images/suzuki.png'},
+  {name:'Skoda',          color:'#4BA82E', logo:'./images/skoda.png'},
+  {name:'Tata',           color:'#6C2382', logo:'./images/tata.png'},
+  {name:'Kia',            color:'#BB162B', logo:'./images/kia.png'},
+  {name:'Mercedes',       color:'#00ADEF', logo:'./images/benz.png'},
+  {name:'Volvo',          color:'#0A3D5C', logo:'./images/volvo.png'},
+  {name:'Hyundai',        color:'#002C5F', logo:'./images/hyundai.png'},
+  {name:'Mahindra',       color:'#ED1C24', logo:'./images/mahendra.png'},
+  {name:'MG Motors',      color:'#C8102E', logo:'./images/mg.png'},
+  {name:'Renault Nissan', color:'#FFCC00', logo:'./images/nissan.png'},
+  {name:'Ti Volt',        color:'#00B140', logo:'./images/tivolt.png'},
+  {name:'Isuzu',          color:'#E2001A', logo:'./images/isuzu .png'},
+];
+
+const glassTypes = [
+  {name:'WindShield',     image:'./images/1.png'},
+  {name:'Side Glass',     image:'./images/2.png'},
+  {name:'Sun Roof',       image:'./images/3.png'},
+  {name:'Quarter Glass',  image:'./images/6.png'},
+  {name:'BackLite Glass', image:'./images/5.png'},
+];
+
+const companyRequirements = {
+  Hyundai: {
+    accent: '#00AAD2',
+    items: [
+      { icon: '🚫', text: 'Enamel scratch / inner scratch' },
+      { icon: '🚫', text: 'Power mark concern' },
+      { icon: '🚫', text: 'GPS concern' },
+      { icon: '🚫', text: 'Black Inclusion Defect' },
+      { icon: '🚫', text: 'Rain sensor bracket (RSB) position issue' },
+    ]
+  },
+  Tata: {
+    accent: '#B05FE0',
+    items: [
+      { icon: '🚫', text: 'White inclusion defect' },
+      { icon: '🚫', text: 'Black Inclusion defect' },
+    ]
+  },
+  'MG Motors': {
+    accent: '#E8395A',
+    items: [
+      { icon: '🚫', text: 'Ice flower' },
+      { icon: '🚫', text: 'Glass chip off' },
+      { icon: '🚫', text: 'Edge waviness' },
+    ]
+  },
+  'Renault Nissan': {
+    accent: '#D4A800',
+    items: [
+      { icon: '🚫', text: 'Wrong Mirror Button usage' },
+    ]
+  },
+  'Ti Volt': {
+    accent: '#00C853',
+    items: [
+      { icon: '🚫', text: 'Scratch' },
+      { icon: '🚫', text: 'Spacer falling' },
+    ]
+  },
+  Isuzu: {
+    accent: '#FF6B6B',
+    items: [
+      { icon: '🚫', text: 'Black Ceramic Print inner scratch' },
+      { icon: '🚫', text: 'Mold damage' },
+    ]
+  },
+  Suzuki: {
+    accent: '#FF6B6B',
+    items: [
+      { icon: '✅', text: 'Surface quality as per OEM specification' },
+      { icon: '🚫', text: 'No visible foreign particles in vision area' },
+      { icon: '✅', text: 'Edge quality within tolerance' },
+      { icon: '✅', text: 'Print clarity and alignment as per drawing' },
+    ]
+  },
+  Skoda: {
+    accent: '#7FD460',
+    items: [
+      { icon: '✅', text: 'Zero optical defects in Zone A' },
+      { icon: '✅', text: 'Lamination clarity as per VW group standards' },
+      { icon: '🚫', text: 'No PVB bubbles in primary vision zone' },
+      { icon: '✅', text: 'Edge finish per group drawing tolerance' },
+    ]
+  },
+  Kia: {
+    accent: '#FF9F9F',
+    items: [
+      { icon: '🚫', text: 'No foreign particles in critical vision zones' },
+      { icon: '✅', text: 'Optical distortion within Kia specification' },
+      { icon: '✅', text: 'Child part alignment as per assembly drawing' },
+      { icon: '🚫', text: 'No observable edge chips or cracks' },
+    ]
+  },
+  Mercedes: {
+    accent: '#40D4FF',
+    items: [
+      { icon: '✅', text: 'Premium optical clarity — zero tolerance Zone A' },
+      { icon: '✅', text: 'Surface finish as per Mercedes premium standard' },
+      { icon: '🚫', text: 'No visible defects in primary driver vision zone' },
+      { icon: '✅', text: 'Full dimensional compliance per Mercedes drawing' },
+      { icon: '🚫', text: 'No enamel defects on all printed zones' },
+    ]
+  },
+  Volvo: {
+    accent: '#3B8FBF',
+    items: [
+      { icon: '✅', text: 'Safety glass standards per Volvo specification' },
+      { icon: '🚫', text: 'No delamination at any zone' },
+      { icon: '✅', text: 'Edge quality and grinding per Volvo tolerance' },
+      { icon: '✅', text: 'PVB interlayer clarity as per drawing' },
+    ]
+  },
+  Mahindra: {
+    accent: '#FF8C8C',
+    items: [
+      { icon: '🚫', text: 'No foreign particles on Face 1 or Face 4' },
+      { icon: '✅', text: 'Optical distortion within Mahindra specification' },
+      { icon: '✅', text: 'Print quality and logo clarity as per drawing' },
+      { icon: '✅', text: 'Child part fitment and alignment tolerance' },
+      { icon: '🚫', text: 'No chattering marks on edge zones' },
+    ]
+  },
+};
+
+function HeroCarousel() {
+  const [active, setActive] = useState(0);
+  const timerRef = useRef(null);
+
+  const goTo = (idx) => {
+    setActive((idx + heroSlides.length) % heroSlides.length);
+  };
+
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActive(prev => (prev + 1) % heroSlides.length);
+    }, 3800);
+  };
+
+  useEffect(() => {
+    resetTimer();
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const handleNav = (dir) => {
+    goTo(active + dir);
+    resetTimer();
+  };
+
+  return (
+    <div className="hero-carousel-wrap">
+      {heroSlides.map((slide, i) => (
+        <div key={i} className={`carousel-slide${i === active ? ' active' : ''}`}>
+          <img src={slide.src} alt={slide.caption} />
+        </div>
+      ))}
+
+      {/* Arrows */}
+      <button className="carousel-arrow prev" onClick={() => handleNav(-1)}>‹</button>
+      <button className="carousel-arrow next" onClick={() => handleNav(1)}>›</button>
+
+      {/* Dots */}
+      <div className="carousel-dots">
+        {heroSlides.map((_, i) => (
+          <div
+            key={i}
+            className={`carousel-dot${i === active ? ' active' : ''}`}
+            onClick={() => { goTo(i); resetTimer(); }}
+          />
+        ))}
+      </div>
+
+      {/* Badge */}
+      <div className="carousel-badge">
+        <div className="dot"></div>
+        {heroSlides[active].caption}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [selectedCompany,  setSelectedCompany]  = useState(null);
+  const [selectedGlass,    setSelectedGlass]    = useState(null);
+  const [scrollPos,        setScrollPos]        = useState(0);
+  const [glassScrollPos,   setGlassScrollPos]   = useState(0);
+  const carouselRef      = useRef(null);
+  const glassCarouselRef = useRef(null);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (carouselRef.current && !carouselRef.current.matches(':hover')) {
+        const max = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
+        const np  = scrollPos >= max ? 0 : scrollPos + 280;
+        setScrollPos(np);
+        carouselRef.current.scrollTo({left: np, behavior:'smooth'});
+      }
+    }, 3500);
+    return () => clearInterval(id);
+  }, [scrollPos]);
+
+  const scrollCar = (dir) => {
+    if (!carouselRef.current) return;
+    const np = scrollPos + dir * 280;
+    setScrollPos(np);
+    carouselRef.current.scrollTo({left: np, behavior:'smooth'});
+  };
+  const scrollGlass = (dir) => {
+    if (!glassCarouselRef.current) return;
+    const np = glassScrollPos + dir * 340;
+    setGlassScrollPos(np);
+    glassCarouselRef.current.scrollTo({left: np, behavior:'smooth'});
+  };
+
+  const pickCompany = (name) => {
+    setSelectedCompany(p => p === name ? null : name);
+    setSelectedGlass(null);
+  };
+
+  return (
+    <div>
+      {/* NAV */}
+      <nav>
+        <img src="./images/logo.png" alt="Saint-Gobain"/>
+      </nav>
+
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-inner">
+          <div className="hero-badge">
+            <span></span> Saint-Gobain Automotive Glass
+          </div>
+          <h1 className="hero-title">
+            <span className="line1">Quality</span>
+            <span className="line2">Gurukul</span>
+          </h1>
+          <p className="hero-sub">
+            Comprehensive glass quality standards for automotive manufacturing —
+            across all vehicle categories and global markets.
+          </p>
+
+          {/* Hero Image Carousel */}
+          <HeroCarousel />
+
+          {/* Stats */}
+          <div className="stats-strip">
+            {[
+              {num:'5+',   lbl:'Vehicle Segments'},
+              {num:'v13',  lbl:'Criteria Version'},
+              {num:'4',    lbl:'Defect Categories'},
+              {num:'12',   lbl:'OEM Partners'},
+            ].map((s,i) => (
+              <div key={i} className="stat-item">
+                <div className="stat-num">{s.num}</div>
+                <div className="stat-lbl">{s.lbl}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PARTNERS */}
+      <section className="partners-section">
+        <div style={{maxWidth:1200,margin:'0 auto',padding:'0 48px'}}>
+          <p className="section-eyebrow">Our Network</p>
+          <h2 className="section-title">Automotive Partners</h2>
+          <p className="section-sub">Select a brand to explore glass specifications</p>
+
+          <div className="carousel-outer">
+            <button className="carousel-btn left" onClick={() => scrollCar(-1)}>‹</button>
+            <div className="carousel-track" ref={carouselRef}>
+              {companies.map((c,i) => (
+                <div
+                  key={i}
+                  className={`company-card${selectedCompany===c.name?' selected':''}`}
+                  onClick={() => pickCompany(c.name)}
+                >
+                  <div className="color-bar" style={{background:c.color}}/>
+                  <img src={c.logo} alt={c.name}/>
+                  <div className="brand-name">{c.name}</div>
+                </div>
+              ))}
+            </div>
+            <button className="carousel-btn right" onClick={() => scrollCar(1)}>›</button>
+          </div>
+        </div>
+      </section>
+
+      {/* GLASS TYPES */}
+      {selectedCompany && (
+        <section className="glass-section fade-in">
+          <div style={{maxWidth:1200,margin:'0 auto',padding:'0 48px'}}>
+            <p className="section-eyebrow">Glass Portfolio</p>
+            <h2 className="section-title">Solutions for {selectedCompany}</h2>
+            <p className="section-sub">Choose a glass type to view acceptance criteria</p>
+            <div className="carousel-outer">
+              <button className="carousel-btn left" onClick={() => scrollGlass(-1)}>‹</button>
+              <div className="carousel-track" ref={glassCarouselRef}>
+                {glassTypes.map((g,i) => (
+                  <div
+                    key={i}
+                    className={`glass-card${selectedGlass===g.name?' selected':''}`}
+                    onClick={() => { setSelectedGlass(g.name); }}
+                  >
+                    <div className="img-wrap">
+                      <img src={g.image} alt={g.name}/>
+                    </div>
+                    <div className="card-label">{g.name}</div>
+                  </div>
+                ))}
+              </div>
+              <button className="carousel-btn right" onClick={() => scrollGlass(1)}>›</button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPANY SPECIAL REQUIREMENTS */}
+      {selectedGlass && companyRequirements[selectedCompany] && (() => {
+        const req = companyRequirements[selectedCompany];
+        return (
+          <section className="criteria-section fade-in" style={{paddingTop:64, paddingBottom:80}}>
+            <div style={{maxWidth:960, margin:'0 auto', padding:'0 48px'}}>
+              <div style={{
+                background:'linear-gradient(135deg, rgba(0,27,64,0.75) 0%, rgba(0,59,142,0.4) 100%)',
+                border:'1px solid rgba(0,174,239,0.3)',
+                borderRadius:24,
+                padding:'40px 44px',
+                position:'relative', overflow:'hidden',
+                boxShadow:'0 24px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)'
+              }}>
+                <div style={{
+                  position:'absolute', top:0, left:0, right:0, height:3, borderRadius:'24px 24px 0 0',
+                  background:`linear-gradient(90deg, var(--sg-blue), ${req.accent}, var(--sg-light))`
+                }}/>
+                <div style={{
+                  position:'absolute', top:-60, right:-60, width:240, height:240, borderRadius:'50%',
+                  background:`radial-gradient(circle, ${req.accent}1A, transparent 70%)`,
+                  pointerEvents:'none'
+                }}/>
+                <div style={{display:'flex', alignItems:'center', gap:16, marginBottom:32}}>
+                  <div style={{
+                    width:50, height:50, borderRadius:16,
+                    background:`linear-gradient(135deg, ${req.accent}33, ${req.accent}11)`,
+                    border:`1px solid ${req.accent}55`,
+                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0
+                  }}>⚡</div>
+                  <div>
+                    <div style={{fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:req.accent, marginBottom:4}}>
+                      Special Customer Requirements
+                    </div>
+                    <div style={{fontSize:22, fontWeight:700, color:'#fff', fontFamily:"'DM Serif Display', serif"}}>
+                      {selectedCompany} · {selectedGlass}
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  fontSize:12, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase',
+                  color:'#ffffff', marginBottom:16
+                }}>
+                  Part must be free from:
+                </div>
+                <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(290px, 1fr))', gap:12}}>
+                  {req.items.map((item, i) => (
+                    <div key={i} style={{
+                      display:'flex', alignItems:'center', gap:14,
+                      background:'rgba(255,255,255,0.04)',
+                      border:'1px solid rgba(255,255,255,0.08)',
+                      borderRadius:14, padding:'15px 20px'
+                    }}>
+                      <div style={{
+                        width:32, height:32, borderRadius:10, flexShrink:0,
+                        background: item.icon === '✅' ? 'rgba(0,210,110,0.15)' : 'rgba(255,70,70,0.12)',
+                        border: item.icon === '✅' ? '1px solid rgba(0,210,110,0.3)' : '1px solid rgba(255,70,70,0.25)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        fontSize:15
+                      }}>{item.icon}</div>
+                      <span style={{fontSize:14.5, color:'rgba(255,255,255,0.9)', lineHeight:1.55, fontWeight:400}}>{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
+      {/* FOOTER */}
+      <footer>
+        <img src="./images/logo.png" alt="Saint-Gobain"/>
+        <p>© 2024 Saint-Gobain Automotive Glass · Windshield Acceptance Criteria v13</p>
+        <p>Quality Standards · Passenger Car · Commercial · Replacement · Export-OEM · AUTOVER</p>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
