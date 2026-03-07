@@ -381,9 +381,9 @@ const companies = [
   {name:'Hyundai',        color:'#002C5F', logo:'./images/hyundai.png'},
   {name:'Mahindra',       color:'#ED1C24', logo:'./images/mahendra.png'},
   {name:'MG Motors',      color:'#C8102E', logo:'./images/mg.png'},
-  {name:'Renault Nissan', color:'#FFCC00', logo:'./images/nissan.png'},
+  {name:'Renault Nissan', color:'#FFCC00', logo:'./images/renault_nissan.png'},
   {name:'Ti Volt',        color:'#00B140', logo:'./images/tivolt.png'},
-  {name:'Isuzu',          color:'#E2001A', logo:'./images/isuzu .png'},
+  {name:'Isuzu',          color:'#E2001A', logo:'./images/isuzu.png'},
 ];
 
 const glassTypes = [
@@ -394,109 +394,86 @@ const glassTypes = [
   {name:'BackLite Glass', image:'./images/5.png'},
 ];
 
-const companyRequirements = {
-  Hyundai: {
-    accent: '#00AAD2',
-    items: [
-      { icon: '🚫', text: 'Enamel scratch / inner scratch' },
-      { icon: '🚫', text: 'Power mark concern' },
-      { icon: '🚫', text: 'GPS concern' },
-      { icon: '🚫', text: 'Black Inclusion Defect' },
-      { icon: '🚫', text: 'Rain sensor bracket (RSB) position issue' },
-    ]
-  },
-  Tata: {
-    accent: '#B05FE0',
-    items: [
-      { icon: '🚫', text: 'White inclusion defect' },
-      { icon: '🚫', text: 'Black Inclusion defect' },
-    ]
-  },
-  'MG Motors': {
-    accent: '#E8395A',
-    items: [
-      { icon: '🚫', text: 'Ice flower' },
-      { icon: '🚫', text: 'Glass chip off' },
-      { icon: '🚫', text: 'Edge waviness' },
-    ]
-  },
-  'Renault Nissan': {
-    accent: '#D4A800',
-    items: [
-      { icon: '🚫', text: 'Wrong Mirror Button usage' },
-    ]
-  },
-  'Ti Volt': {
-    accent: '#00C853',
-    items: [
-      { icon: '🚫', text: 'Scratch' },
-      { icon: '🚫', text: 'Spacer falling' },
-    ]
-  },
-  Isuzu: {
-    accent: '#FF6B6B',
-    items: [
-      { icon: '🚫', text: 'Black Ceramic Print inner scratch' },
-      { icon: '🚫', text: 'Mold damage' },
-    ]
-  },
-  Suzuki: {
-    accent: '#FF6B6B',
-    items: [
-      { icon: '✅', text: 'Surface quality as per OEM specification' },
-      { icon: '🚫', text: 'No visible foreign particles in vision area' },
-      { icon: '✅', text: 'Edge quality within tolerance' },
-      { icon: '✅', text: 'Print clarity and alignment as per drawing' },
-    ]
-  },
-  Skoda: {
-    accent: '#7FD460',
-    items: [
-      { icon: '✅', text: 'Zero optical defects in Zone A' },
-      { icon: '✅', text: 'Lamination clarity as per VW group standards' },
-      { icon: '🚫', text: 'No PVB bubbles in primary vision zone' },
-      { icon: '✅', text: 'Edge finish per group drawing tolerance' },
-    ]
-  },
-  Kia: {
-    accent: '#FF9F9F',
-    items: [
-      { icon: '🚫', text: 'No foreign particles in critical vision zones' },
-      { icon: '✅', text: 'Optical distortion within Kia specification' },
-      { icon: '✅', text: 'Child part alignment as per assembly drawing' },
-      { icon: '🚫', text: 'No observable edge chips or cracks' },
-    ]
-  },
-  Mercedes: {
-    accent: '#40D4FF',
-    items: [
-      { icon: '✅', text: 'Premium optical clarity — zero tolerance Zone A' },
-      { icon: '✅', text: 'Surface finish as per Mercedes premium standard' },
-      { icon: '🚫', text: 'No visible defects in primary driver vision zone' },
-      { icon: '✅', text: 'Full dimensional compliance per Mercedes drawing' },
-      { icon: '🚫', text: 'No enamel defects on all printed zones' },
-    ]
-  },
-  Volvo: {
-    accent: '#3B8FBF',
-    items: [
-      { icon: '✅', text: 'Safety glass standards per Volvo specification' },
-      { icon: '🚫', text: 'No delamination at any zone' },
-      { icon: '✅', text: 'Edge quality and grinding per Volvo tolerance' },
-      { icon: '✅', text: 'PVB interlayer clarity as per drawing' },
-    ]
-  },
-  Mahindra: {
-    accent: '#FF8C8C',
-    items: [
-      { icon: '🚫', text: 'No foreign particles on Face 1 or Face 4' },
-      { icon: '✅', text: 'Optical distortion within Mahindra specification' },
-      { icon: '✅', text: 'Print quality and logo clarity as per drawing' },
-      { icon: '✅', text: 'Child part fitment and alignment tolerance' },
-      { icon: '🚫', text: 'No chattering marks on edge zones' },
-    ]
-  },
+// PPT-sourced glass requirements (Door Glass content used for WindShield, Side Glass, Quarter Glass)
+const pptGlassItems = {
+  'BackLite Glass': [
+    { icon: '✅', text: 'Enamel printing quality as per specification' },
+    { icon: '✅', text: 'Free print edge < 2mm' },
+    { icon: '✅', text: 'Child part presence confirmed' },
+    { icon: '✅', text: 'Logo presence — clear and visible' },
+    { icon: '✅', text: 'Transmission optics meet the spec' },
+    { icon: '✅', text: 'Mandatory to fix spacer & stopper for proper affixing' },
+    { icon: '✅', text: 'Pull off strength has to meet the specific range' },
+  ],
+  'Sun Roof': [
+    { icon: '✅', text: 'Enamel printing quality as per specification' },
+    { icon: '✅', text: 'Free print edge < 2mm' },
+    { icon: '✅', text: 'Logo presence — clear and visible' },
+    { icon: '✅', text: 'Transmission optics meet the spec' },
+  ],
+  'WindShield': [
+    { icon: '🚫', text: 'Optics / aesthetics defect' },
+    { icon: '🚫', text: 'Free from scratch' },
+    { icon: '✅', text: 'Check for visual defect through transmission' },
+    { icon: '✅', text: 'Mandatory to fix holder for proper affixing' },
+  ],
+  'Side Glass': [
+    { icon: '🚫', text: 'Optics / aesthetics defect' },
+    { icon: '🚫', text: 'Free from scratch' },
+    { icon: '✅', text: 'Check for visual defect through transmission' },
+    { icon: '✅', text: 'Mandatory to fix holder for proper affixing' },
+  ],
+  'Quarter Glass': [
+    { icon: '🚫', text: 'Optics / aesthetics defect' },
+    { icon: '🚫', text: 'Free from scratch' },
+    { icon: '✅', text: 'Check for visual defect through transmission' },
+    { icon: '✅', text: 'Mandatory to fix holder for proper affixing' },
+  ],
 };
+
+// PPT slide: which companies apply to each glass type
+const pptCompanies = {
+  'BackLite Glass':  ['Hyundai', 'Tata', 'Suzuki', 'MG Motors'],
+  'Sun Roof':        ['Hyundai', 'Kia', 'Skoda'],
+  'WindShield':      ['Hyundai', 'Kia', 'Skoda', 'Tata', 'Suzuki', 'MG Motors', 'Mercedes'],
+  'Side Glass':      ['Hyundai', 'Kia', 'Skoda', 'Tata', 'Suzuki', 'MG Motors', 'Mercedes'],
+  'Quarter Glass':   ['Hyundai', 'Kia', 'Skoda', 'Tata', 'Suzuki', 'MG Motors', 'Mercedes'],
+};
+
+const companyAccents = {
+  Hyundai: '#00AAD2', Tata: '#B05FE0', 'MG Motors': '#E8395A',
+  'Renault Nissan': '#D4A800', 'Ti Volt': '#00C853', Isuzu: '#FF6B6B',
+  Suzuki: '#FF6060', Skoda: '#7FD460', Kia: '#FF9F9F',
+  Mercedes: '#40D4FF', Volvo: '#3B8FBF', Mahindra: '#FF8C8C',
+};
+
+// Fallback special requirements when no PPT data exists for that company+glass combo
+const specialRequirements = {
+  Hyundai:          [{ icon:'🚫', text:'Enamel scratch / inner scratch' },{ icon:'🚫', text:'Power mark concern' },{ icon:'🚫', text:'GPS concern' },{ icon:'🚫', text:'Black Inclusion Defect' },{ icon:'🚫', text:'Rain sensor bracket (RSB) position issue' }],
+  Tata:             [{ icon:'🚫', text:'White inclusion defect' },{ icon:'🚫', text:'Black Inclusion defect' }],
+  'MG Motors':      [{ icon:'🚫', text:'Ice flower' },{ icon:'🚫', text:'Glass chip off' },{ icon:'🚫', text:'Edge waviness' }],
+  'Renault Nissan': [{ icon:'🚫', text:'Wrong Mirror Button usage' }],
+  'Ti Volt':        [{ icon:'🚫', text:'Scratch' },{ icon:'🚫', text:'Spacer falling' }],
+  Isuzu:            [{ icon:'🚫', text:'Black Ceramic Print inner scratch' },{ icon:'🚫', text:'Mold damage' }],
+  Suzuki:           [{ icon:'✅', text:'Surface quality as per OEM specification' },{ icon:'🚫', text:'No visible foreign particles in vision area' },{ icon:'✅', text:'Edge quality within tolerance' },{ icon:'✅', text:'Print clarity and alignment as per drawing' }],
+  Skoda:            [{ icon:'✅', text:'Zero optical defects in Zone A' },{ icon:'✅', text:'Lamination clarity as per VW group standards' },{ icon:'🚫', text:'No PVB bubbles in primary vision zone' },{ icon:'✅', text:'Edge finish per group drawing tolerance' }],
+  Kia:              [{ icon:'🚫', text:'No foreign particles in critical vision zones' },{ icon:'✅', text:'Optical distortion within Kia specification' },{ icon:'✅', text:'Child part alignment as per assembly drawing' },{ icon:'🚫', text:'No observable edge chips or cracks' }],
+  Mercedes:         [{ icon:'✅', text:'Premium optical clarity — zero tolerance Zone A' },{ icon:'✅', text:'Surface finish as per Mercedes premium standard' },{ icon:'🚫', text:'No visible defects in primary driver vision zone' },{ icon:'✅', text:'Full dimensional compliance per Mercedes drawing' },{ icon:'🚫', text:'No enamel defects on all printed zones' }],
+  Volvo:            [{ icon:'✅', text:'Safety glass standards per Volvo specification' },{ icon:'🚫', text:'No delamination at any zone' },{ icon:'✅', text:'Edge quality and grinding per Volvo tolerance' },{ icon:'✅', text:'PVB interlayer clarity as per drawing' }],
+  Mahindra:         [{ icon:'🚫', text:'No foreign particles on Face 1 or Face 4' },{ icon:'✅', text:'Optical distortion within Mahindra specification' },{ icon:'✅', text:'Print quality and logo clarity as per drawing' },{ icon:'✅', text:'Child part fitment and alignment tolerance' },{ icon:'🚫', text:'No chattering marks on edge zones' }],
+};
+
+function getRequirements(company, glassType) {
+  const accent = companyAccents[company] || '#00AEEF';
+  const companiesForGlass = pptCompanies[glassType] || [];
+  if (companiesForGlass.includes(company) && pptGlassItems[glassType]) {
+    return { accent, items: pptGlassItems[glassType], source: 'ppt' };
+  }
+  if (specialRequirements[company]) {
+    return { accent, items: specialRequirements[company], source: 'special' };
+  }
+  return null;
+}
 
 function HeroCarousel() {
   const [active, setActive] = useState(0);
@@ -692,8 +669,8 @@ function App() {
       )}
 
       {/* COMPANY SPECIAL REQUIREMENTS */}
-      {selectedGlass && companyRequirements[selectedCompany] && (() => {
-        const req = companyRequirements[selectedCompany];
+      {selectedGlass && getRequirements(selectedCompany, selectedGlass) && (() => {
+        const req = getRequirements(selectedCompany, selectedGlass);
         return (
           <section className="criteria-section fade-in" style={{paddingTop:64, paddingBottom:80}}>
             <div style={{maxWidth:960, margin:'0 auto', padding:'0 48px'}}>
@@ -723,7 +700,7 @@ function App() {
                   }}>⚡</div>
                   <div>
                     <div style={{fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:req.accent, marginBottom:4}}>
-                      Special Customer Requirements
+                      {req.source === 'ppt' ? 'Glass Quality Requirements' : 'Special Customer Requirements'}
                     </div>
                     <div style={{fontSize:22, fontWeight:700, color:'#fff', fontFamily:"'DM Serif Display', serif"}}>
                       {selectedCompany} · {selectedGlass}
