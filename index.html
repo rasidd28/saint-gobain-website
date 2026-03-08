@@ -329,6 +329,35 @@
     background: rgba(0,87,210,0.12); letter-spacing: 0.03em;
   }
 
+  /* ── TAB TOGGLE BUTTONS ── */
+  .tab-toggle-wrap {
+    display: flex; justify-content: center; gap: 16px;
+    margin-bottom: 36px;
+  }
+  .tab-toggle-btn {
+    padding: 12px 36px;
+    border-radius: 100px;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.06em;
+    cursor: pointer; border: none; outline: none;
+    transition: all 0.25s ease;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab-toggle-btn.active {
+    background: linear-gradient(135deg, var(--sg-mid), var(--sg-accent));
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(0,174,239,0.35);
+  }
+  .tab-toggle-btn.inactive {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .tab-toggle-btn.inactive:hover {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(0,174,239,0.35);
+  }
+
   /* ── FOOTER ── */
   footer {
     background: #000d20;
@@ -380,7 +409,7 @@ const companies = [
   {name:'Volvo',          color:'#0A3D5C', logo:'./images/volvo.png'},
   {name:'Hyundai',        color:'#002C5F', logo:'./images/hyundai.png'},
   {name:'Mahindra',       color:'#ED1C24', logo:'./images/mahendra.png'},
-  {name:'MG Motors',      color:'#C8102E', logo:'./images/mg.png'},
+  {name:'MG Motors',      color:'#C8102E', logo:'./images/MG.png'},
   {name:'Renault Nissan', color:'#FFCC00', logo:'./images/nissan.png'},
   {name:'Ti Volt',        color:'#00B140', logo:'./images/tivolt.png'},
   {name:'Isuzu',          color:'#E2001A', logo:'./images/isuzu .png'},
@@ -394,7 +423,39 @@ const glassTypes = [
   {name:'BackLite Glass', image:'./images/5.png'},
 ];
 
-// PPT-sourced glass requirements (Door Glass content used for WindShield, Side Glass, Quarter Glass)
+// ── WINDSHIELD REQUIREMENTS from the provided image ──
+// "Part must be free from:" for each company
+const windshieldRequirements = {
+  Hyundai: [
+    { icon:'🚫', text:'Enamel scratch / inner scratch' },
+    { icon:'🚫', text:'Power mark concern' },
+    { icon:'🚫', text:'GPS concern' },
+    { icon:'🚫', text:'Black Inclusion Defect' },
+    { icon:'🚫', text:'Rain sensor bracket (RSB) position issue' },
+  ],
+  Tata: [
+    { icon:'🚫', text:'White inclusion defect' },
+    { icon:'🚫', text:'Black Inclusion defect' },
+  ],
+  'Ti Volt': [
+    { icon:'🚫', text:'Scratch' },
+    { icon:'🚫', text:'Spacer falling' },
+  ],
+  Isuzu: [
+    { icon:'🚫', text:'Black Ceramic Print inner scratch' },
+    { icon:'🚫', text:'Mold damage' },
+  ],
+  'MG Motors': [
+    { icon:'🚫', text:'Ice flower' },
+    { icon:'🚫', text:'Glass chip off' },
+    { icon:'🚫', text:'Edge waviness' },
+  ],
+  'Renault Nissan': [
+    { icon:'🚫', text:'Wrong Mirror Button usage' },
+  ],
+};
+
+// PPT-sourced glass requirements
 const pptGlassItems = {
   'BackLite Glass': [
     { icon: '✅', text: 'Enamel printing quality as per specification' },
@@ -431,7 +492,6 @@ const pptGlassItems = {
   ],
 };
 
-// PPT slide: which companies apply to each glass type
 const pptCompanies = {
   'BackLite Glass':  ['Hyundai', 'Tata', 'Suzuki', 'MG Motors'],
   'Sun Roof':        ['Hyundai', 'Kia', 'Skoda'],
@@ -447,7 +507,6 @@ const companyAccents = {
   Mercedes: '#40D4FF', Volvo: '#3B8FBF', Mahindra: '#FF8C8C',
 };
 
-// Fallback special requirements when no PPT data exists for that company+glass combo
 const specialRequirements = {
   Hyundai:          [{ icon:'🚫', text:'Enamel scratch / inner scratch' },{ icon:'🚫', text:'Power mark concern' },{ icon:'🚫', text:'GPS concern' },{ icon:'🚫', text:'Black Inclusion Defect' },{ icon:'🚫', text:'Rain sensor bracket (RSB) position issue' }],
   Tata:             [{ icon:'🚫', text:'White inclusion defect' },{ icon:'🚫', text:'Black Inclusion defect' }],
@@ -463,7 +522,7 @@ const specialRequirements = {
   Mahindra:         [{ icon:'🚫', text:'No foreign particles on Face 1 or Face 4' },{ icon:'✅', text:'Optical distortion within Mahindra specification' },{ icon:'✅', text:'Print quality and logo clarity as per drawing' },{ icon:'✅', text:'Child part fitment and alignment tolerance' },{ icon:'🚫', text:'No chattering marks on edge zones' }],
 };
 
-function getRequirements(company, glassType) {
+function getCustomerRequirements(company, glassType) {
   const accent = companyAccents[company] || '#00AEEF';
   const companiesForGlass = pptCompanies[glassType] || [];
   if (companiesForGlass.includes(company) && pptGlassItems[glassType]) {
@@ -473,6 +532,78 @@ function getRequirements(company, glassType) {
     return { accent, items: specialRequirements[company], source: 'special' };
   }
   return null;
+}
+
+function getWindshieldRequirements(company) {
+  const accent = companyAccents[company] || '#00AEEF';
+  if (windshieldRequirements[company]) {
+    return { accent, items: windshieldRequirements[company] };
+  }
+  return null;
+}
+
+function RequirementsPanel({ company, glassType, accent, items, label, icon }) {
+  return (
+    <div style={{
+      background:'linear-gradient(135deg, rgba(0,27,64,0.75) 0%, rgba(0,59,142,0.4) 100%)',
+      border:'1px solid rgba(0,174,239,0.3)',
+      borderRadius:24,
+      padding:'40px 44px',
+      position:'relative', overflow:'hidden',
+      boxShadow:'0 24px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)'
+    }}>
+      <div style={{
+        position:'absolute', top:0, left:0, right:0, height:3, borderRadius:'24px 24px 0 0',
+        background:`linear-gradient(90deg, var(--sg-blue), ${accent}, var(--sg-light))`
+      }}/>
+      <div style={{
+        position:'absolute', top:-60, right:-60, width:240, height:240, borderRadius:'50%',
+        background:`radial-gradient(circle, ${accent}1A, transparent 70%)`,
+        pointerEvents:'none'
+      }}/>
+      <div style={{display:'flex', alignItems:'center', gap:16, marginBottom:32}}>
+        <div style={{
+          width:50, height:50, borderRadius:16,
+          background:`linear-gradient(135deg, ${accent}33, ${accent}11)`,
+          border:`1px solid ${accent}55`,
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0
+        }}>{icon}</div>
+        <div>
+          <div style={{fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:accent, marginBottom:4}}>
+            {label}
+          </div>
+          <div style={{fontSize:22, fontWeight:700, color:'#fff', fontFamily:"'DM Serif Display', serif"}}>
+            {company} · {glassType}
+          </div>
+        </div>
+      </div>
+      <div style={{
+        fontSize:12, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase',
+        color:'#ffffff', marginBottom:16
+      }}>
+        Part must be free from:
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(290px, 1fr))', gap:12}}>
+        {items.map((item, i) => (
+          <div key={i} style={{
+            display:'flex', alignItems:'center', gap:14,
+            background:'rgba(255,255,255,0.04)',
+            border:'1px solid rgba(255,255,255,0.08)',
+            borderRadius:14, padding:'15px 20px'
+          }}>
+            <div style={{
+              width:32, height:32, borderRadius:10, flexShrink:0,
+              background: item.icon === '✅' ? 'rgba(0,210,110,0.15)' : 'rgba(255,70,70,0.12)',
+              border: item.icon === '✅' ? '1px solid rgba(0,210,110,0.3)' : '1px solid rgba(255,70,70,0.25)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:15
+            }}>{item.icon}</div>
+            <span style={{fontSize:14.5, color:'rgba(255,255,255,0.9)', lineHeight:1.55, fontWeight:400}}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function HeroCarousel() {
@@ -507,12 +638,8 @@ function HeroCarousel() {
           <img src={slide.src} alt={slide.caption} />
         </div>
       ))}
-
-      {/* Arrows */}
       <button className="carousel-arrow prev" onClick={() => handleNav(-1)}>‹</button>
       <button className="carousel-arrow next" onClick={() => handleNav(1)}>›</button>
-
-      {/* Dots */}
       <div className="carousel-dots">
         {heroSlides.map((_, i) => (
           <div
@@ -522,8 +649,6 @@ function HeroCarousel() {
           />
         ))}
       </div>
-
-      {/* Badge */}
       <div className="carousel-badge">
         <div className="dot"></div>
         {heroSlides[active].caption}
@@ -535,6 +660,7 @@ function HeroCarousel() {
 function App() {
   const [selectedCompany,  setSelectedCompany]  = useState(null);
   const [selectedGlass,    setSelectedGlass]    = useState(null);
+  const [activeTab,        setActiveTab]        = useState('customer'); // 'customer' | 'windshield'
   const [scrollPos,        setScrollPos]        = useState(0);
   const [glassScrollPos,   setGlassScrollPos]   = useState(0);
   const carouselRef      = useRef(null);
@@ -568,7 +694,18 @@ function App() {
   const pickCompany = (name) => {
     setSelectedCompany(p => p === name ? null : name);
     setSelectedGlass(null);
+    setActiveTab('customer');
   };
+
+  const pickGlass = (name) => {
+    setSelectedGlass(name);
+    setActiveTab('customer');
+  };
+
+  const customerReq   = selectedCompany && selectedGlass ? getCustomerRequirements(selectedCompany, selectedGlass) : null;
+  const windshieldReq = selectedCompany && selectedGlass ? getWindshieldRequirements(selectedCompany) : null;
+
+  const showPanel = selectedCompany && selectedGlass && (customerReq || windshieldReq);
 
   return (
     <div>
@@ -591,11 +728,7 @@ function App() {
             Comprehensive glass quality standards for automotive manufacturing —
             across all vehicle categories and global markets.
           </p>
-
-          {/* Hero Image Carousel */}
           <HeroCarousel />
-
-          {/* Stats */}
           <div className="stats-strip">
             {[
               {num:'5+',   lbl:'Vehicle Segments'},
@@ -618,7 +751,6 @@ function App() {
           <p className="section-eyebrow">Our Network</p>
           <h2 className="section-title">Automotive Partners</h2>
           <p className="section-sub">Select a brand to explore glass specifications</p>
-
           <div className="carousel-outer">
             <button className="carousel-btn left" onClick={() => scrollCar(-1)}>‹</button>
             <div className="carousel-track" ref={carouselRef}>
@@ -653,7 +785,7 @@ function App() {
                   <div
                     key={i}
                     className={`glass-card${selectedGlass===g.name?' selected':''}`}
-                    onClick={() => { setSelectedGlass(g.name); }}
+                    onClick={() => pickGlass(g.name)}
                   >
                     <div className="img-wrap">
                       <img src={g.image} alt={g.name}/>
@@ -668,75 +800,72 @@ function App() {
         </section>
       )}
 
-      {/* COMPANY SPECIAL REQUIREMENTS */}
-      {selectedGlass && getRequirements(selectedCompany, selectedGlass) && (() => {
-        const req = getRequirements(selectedCompany, selectedGlass);
-        return (
-          <section className="criteria-section fade-in" style={{paddingTop:64, paddingBottom:80}}>
-            <div style={{maxWidth:960, margin:'0 auto', padding:'0 48px'}}>
-              <div style={{
-                background:'linear-gradient(135deg, rgba(0,27,64,0.75) 0%, rgba(0,59,142,0.4) 100%)',
-                border:'1px solid rgba(0,174,239,0.3)',
-                borderRadius:24,
-                padding:'40px 44px',
-                position:'relative', overflow:'hidden',
-                boxShadow:'0 24px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)'
-              }}>
-                <div style={{
-                  position:'absolute', top:0, left:0, right:0, height:3, borderRadius:'24px 24px 0 0',
-                  background:`linear-gradient(90deg, var(--sg-blue), ${req.accent}, var(--sg-light))`
-                }}/>
-                <div style={{
-                  position:'absolute', top:-60, right:-60, width:240, height:240, borderRadius:'50%',
-                  background:`radial-gradient(circle, ${req.accent}1A, transparent 70%)`,
-                  pointerEvents:'none'
-                }}/>
-                <div style={{display:'flex', alignItems:'center', gap:16, marginBottom:32}}>
-                  <div style={{
-                    width:50, height:50, borderRadius:16,
-                    background:`linear-gradient(135deg, ${req.accent}33, ${req.accent}11)`,
-                    border:`1px solid ${req.accent}55`,
-                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0
-                  }}>⚡</div>
-                  <div>
-                    <div style={{fontSize:10, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:req.accent, marginBottom:4}}>
-                      {req.source === 'ppt' ? 'Glass Quality Requirements' : 'Special Customer Requirements'}
-                    </div>
-                    <div style={{fontSize:22, fontWeight:700, color:'#fff', fontFamily:"'DM Serif Display', serif"}}>
-                      {selectedCompany} · {selectedGlass}
-                    </div>
-                  </div>
-                </div>
-                <div style={{
-                  fontSize:12, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase',
-                  color:'#ffffff', marginBottom:16
-                }}>
-                  Part must be free from:
-                </div>
-                <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(290px, 1fr))', gap:12}}>
-                  {req.items.map((item, i) => (
-                    <div key={i} style={{
-                      display:'flex', alignItems:'center', gap:14,
-                      background:'rgba(255,255,255,0.04)',
-                      border:'1px solid rgba(255,255,255,0.08)',
-                      borderRadius:14, padding:'15px 20px'
-                    }}>
-                      <div style={{
-                        width:32, height:32, borderRadius:10, flexShrink:0,
-                        background: item.icon === '✅' ? 'rgba(0,210,110,0.15)' : 'rgba(255,70,70,0.12)',
-                        border: item.icon === '✅' ? '1px solid rgba(0,210,110,0.3)' : '1px solid rgba(255,70,70,0.25)',
-                        display:'flex', alignItems:'center', justifyContent:'center',
-                        fontSize:15
-                      }}>{item.icon}</div>
-                      <span style={{fontSize:14.5, color:'rgba(255,255,255,0.9)', lineHeight:1.55, fontWeight:400}}>{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      {/* REQUIREMENTS PANEL WITH TAB TOGGLE */}
+      {showPanel && (
+        <section className="criteria-section fade-in" style={{paddingTop:48, paddingBottom:80}}>
+          <div style={{maxWidth:960, margin:'0 auto', padding:'0 48px'}}>
+
+            {/* ── TAB TOGGLE BUTTONS ── */}
+            <div className="tab-toggle-wrap">
+              <button
+                className={`tab-toggle-btn ${activeTab === 'customer' ? 'active' : 'inactive'}`}
+                onClick={() => setActiveTab('customer')}
+              >
+                Customer Requirement
+              </button>
+              <button
+                className={`tab-toggle-btn ${activeTab === 'windshield' ? 'active' : 'inactive'}`}
+                onClick={() => setActiveTab('windshield')}
+              >
+                Windshield
+              </button>
             </div>
-          </section>
-        );
-      })()}
+
+            {/* ── CUSTOMER REQUIREMENT TAB ── */}
+            {activeTab === 'customer' && customerReq && (
+              <RequirementsPanel
+                company={selectedCompany}
+                glassType={selectedGlass}
+                accent={customerReq.accent}
+                items={customerReq.items}
+                label={customerReq.source === 'ppt' ? 'Glass Quality Requirements' : 'Special Customer Requirements'}
+                icon="⚡"
+              />
+            )}
+
+            {activeTab === 'customer' && !customerReq && (
+              <div style={{
+                textAlign:'center', padding:'48px 0',
+                color:'rgba(255,255,255,0.4)', fontSize:15
+              }}>
+                No specific customer requirements found for {selectedCompany} · {selectedGlass}.
+              </div>
+            )}
+
+            {/* ── WINDSHIELD TAB ── */}
+            {activeTab === 'windshield' && windshieldReq && (
+              <RequirementsPanel
+                company={selectedCompany}
+                glassType={selectedGlass}
+                accent={windshieldReq.accent}
+                items={windshieldReq.items}
+                label="Windshield — Part Must Be Free From"
+                icon="🔍"
+              />
+            )}
+
+            {activeTab === 'windshield' && !windshieldReq && (
+              <div style={{
+                textAlign:'center', padding:'48px 0',
+                color:'rgba(255,255,255,0.4)', fontSize:15
+              }}>
+                No windshield-specific requirements listed for {selectedCompany}.
+              </div>
+            )}
+
+          </div>
+        </section>
+      )}
 
       {/* FOOTER */}
       <footer>
